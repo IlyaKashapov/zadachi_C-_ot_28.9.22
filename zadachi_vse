@@ -1,0 +1,105 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace lesson_28_09
+{
+    internal class PointR3
+    {
+        protected double x, y, z;
+        public PointR3(double x = 0, double y = 0, double z = 0)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+        public PointR3(PointR3 other)
+        {
+            this.x = other.x;
+            this.y = other.y;
+            this.z = other.z;
+        }
+
+        public double X { get { return x; } set { x = value; } }
+        public double Y { get { return y; } set { y = value; } }
+        public double Z { get { return z; } set { z = value; } }
+
+        public double Distance(PointR3 other)
+        {
+            return Math.Sqrt(Math.Pow(this.x - other.x, 2) + Math.Pow(this.y - other.y, 2) + Math.Pow(this.z - other.z, 2));
+        }
+        public double Distance()
+        {
+            return Math.Sqrt(this * this);
+        }
+
+        protected static double[]? Plane(PointR3 pnt1, PointR3 pnt2, PointR3 pnt3)
+        {
+            PointR3 V1 = new PointR3(pnt2.x - pnt1.x, pnt2.y - pnt1.y, pnt2.z - pnt1.z);
+            PointR3 V2 = new PointR3(pnt3.x - pnt1.x, pnt3.y - pnt1.y, pnt3.z - pnt1.z);
+            PointR3 normalV = V1 ^ V2;
+            if (normalV.x == normalV.y && normalV.y == normalV.z && normalV.z == 0)
+            {
+                return null;
+            }
+            double d = -(normalV.x * pnt1.x + normalV.y * pnt1.y + normalV.z * pnt1.z);
+            double[] coef = new double[4] { normalV.x, normalV.y, normalV.Z, d };
+            return coef;
+        }
+
+        public static void PrintPlane(PointR3 pnt1, PointR3 pnt2, PointR3 pnt3)
+        {
+            if (Plane(pnt1, pnt2, pnt3) != null)
+            {
+                double[] coef = PointR3.Plane(pnt1, pnt2, pnt3);
+                string result = "";
+                if (coef[0] > 0) { result = result + coef[0].ToString() + "x"; }
+                else if (coef[0] < 0) { result = result + "-" + (-coef[0]).ToString() + "x"; }
+
+                if (coef[1] > 0)
+                {
+                    if (result != "") { result = result + "+" + coef[1].ToString() + "y"; }
+                    else { result = result + coef[1].ToString() + "y"; }
+                }
+                else if (coef[1] < 0) { result = result + "-" + (-coef[1]).ToString() + "y"; }
+
+                if (coef[2] > 0)
+                {
+                    if (result != "") { result = result + "+" + coef[2].ToString() + "z"; }
+                    else { result = result + coef[2].ToString() + "z"; }
+                }
+                else if (coef[2] < 0) { result = result + "-" + (-coef[2]).ToString() + "z"; }
+                if (coef[3] > 0) { result = result + "+" + coef[3].ToString() + "=0"; }
+                else if (coef[3] < 0) { result = result + "-" + (-coef[3]).ToString() + "=0"; }
+                else { result += "=0"; }
+                Console.WriteLine(result);
+            }
+            else Console.WriteLine("Точки лежат на одной прямой");
+        }
+
+        public static void PrintLine(PointR3 pnt1, PointR3 pnt2)
+        {
+            Console.WriteLine("({0}, {1}, {2})+t*<{3}, {4}, {5}>", 
+                pnt1.x, pnt1.y, pnt1.z, pnt1.x - pnt2.x, pnt1.y - pnt2.y, pnt1.z - pnt2.z);
+        }
+
+        protected bool SamePlane(PointR3 pnt1, PointR3 pnt2, PointR3 pnt3)
+        {
+            if (PointR3.Plane(pnt1, pnt2, pnt3) != null)
+            {
+                double[] coef = PointR3.Plane(pnt1, pnt2, pnt3);
+                if (coef[0] * this.x + coef[1] * this.y + coef[2] * this.z + coef[3] == 0)
+                {
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
+
+        public static PointR3 operator +(PointR3 pnt1, PointR3 pnt2)
+        {
+            return new PointR3(pnt1.x + pnt2.x, pnt1.y + pnt2.y, pnt1.z + pnt2.z);
+        }
